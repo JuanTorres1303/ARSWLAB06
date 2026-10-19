@@ -1,7 +1,23 @@
 import { useEffect, useRef } from 'react'
 
-export default function BlueprintCanvas({ id = "canvas-blueprint", points = [], width = 520, height = 360 }) {
+export default function BlueprintCanvas({
+  id = 'canvas-blueprint',
+  points = [],
+  width = 520,
+  height = 360,
+  onPointAdd,
+}) {
   const ref = useRef(null)
+
+  // Convierte el clic a coordenadas internas del canvas (el CSS puede escalarlo)
+  const handleClick = (e) => {
+    if (!onPointAdd) return
+    const canvas = e.currentTarget
+    const rect = canvas.getBoundingClientRect()
+    const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width))
+    const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height))
+    onPointAdd({ x, y })
+  }
 
   useEffect(() => {
     const canvas = ref.current
@@ -50,7 +66,9 @@ export default function BlueprintCanvas({ id = "canvas-blueprint", points = [], 
       width={width}
       height={height}
       id={id}
+      onClick={handleClick}
       style={{
+        cursor: onPointAdd ? 'crosshair' : 'default',
         background: '#0b1220',
         border: '1px solid #334155',
         borderRadius: 12,
